@@ -1,0 +1,264 @@
+Common helper program
+
+import requests
+
+def ask_ollama(prompt):
+    url = "http://localhost:11434/api/generate"
+
+    data = {
+        "model": "llama3.2",
+        "prompt": prompt,
+        "stream": False
+    }
+
+    response = requests.post(url, json=data, timeout=180)
+    response.raise_for_status()
+
+    return response.json()["response"]
+
+
+Experiment 1 – E-commerce Chatbot
+
+from ollama_helper import ask_ollama
+import csv
+
+# Read product information from CSV
+products = []
+
+with open("products.csv", "r", encoding="utf-8") as file:
+    reader = csv.DictReader(file)
+
+    for row in reader:
+        products.append(row)
+
+print("WELCOME TO ONLINE SHOPPING")
+
+print("\nAvailable Products:")
+
+for product in products:
+    print(product["Product"], "-", "Rs.", product["Price"],
+          "-", product["Description"])
+
+while True:
+    question = input("\nAsk a question (type exit to stop): ")
+
+    if question.lower() == "exit":
+        break
+
+    prompt = f"""
+    You are an e-commerce chatbot.
+    Use only the product information below.
+    Do not invent products, prices or features.
+    If the information is not available, say so.
+
+    Product information: {products}
+    Customer question: {question}
+    """
+
+    answer = ask_ollama(prompt)
+
+    print("\nChatbot:", answer)
+
+
+Experiment 2 – AI Blog Content Generator
+
+from ollama_helper import ask_ollama
+
+print("AI BLOG CONTENT GENERATOR")
+
+topic = input("Enter blog topic: ")
+
+style = input("Enter writing style (Formal/Casual/Informative): ")
+
+prompt = f"""
+Write a blog on the topic: {topic}.
+Use this writing style: {style}.
+
+Include:
+1. An attractive title
+2. Introduction
+3. Main content with headings
+4. Conclusion
+"""
+
+blog = ask_ollama(prompt)
+
+print("\nGENERATED BLOG\n")
+print(blog)
+
+with open("blog.txt", "w", encoding="utf-8") as file:
+    file.write(blog)
+
+print("\nBlog saved as blog.txt")
+
+
+Experiment 3 – Intelligent Email Assistant
+from ollama_helper import ask_ollama
+
+print("INTELLIGENT EMAIL ASSISTANT")
+
+email = input("Enter the received email: ")
+
+tone = input("Enter tone (Formal/Friendly/Professional): ")
+
+prompt = f"""
+You are an intelligent email assistant.
+Read the received email and write an appropriate reply.
+
+Received email:
+{email}
+
+Tone: {tone}
+
+Include a suitable subject, greeting, email body and closing.
+Do not invent facts that are not given in the email.
+"""
+
+reply = ask_ollama(prompt)
+
+print("\nGENERATED EMAIL REPLY\n")
+print(reply)
+
+with open("email_reply.txt", "w", encoding="utf-8") as file:
+    file.write(reply)
+
+print("\nEmail saved as email_reply.txt")
+
+
+Experiment 4 – Personalized Course Recommendation System
+from ollama_helper import ask_ollama
+import csv
+
+courses = []
+
+with open("courses.csv", "r", encoding="utf-8") as file:
+    reader = csv.DictReader(file)
+
+    for row in reader:
+        courses.append(row)
+
+print("PERSONALIZED COURSE RECOMMENDATION SYSTEM")
+
+name = input("Enter student name: ")
+
+interest = input("Enter your interest: ")
+
+skill = input("Enter skill level (Beginner/Intermediate/Advanced): ")
+
+prompt = f"""
+You are a course recommendation assistant.
+
+Student name: {name}
+Student interest: {interest}
+Student skill level: {skill}
+
+Available courses:
+{courses}
+
+Recommend three suitable courses only from the available list.
+Give a short reason for each recommendation.
+Do not invent courses.
+"""
+
+result = ask_ollama(prompt)
+
+print("\nRECOMMENDED COURSES\n")
+print(result)
+
+
+Experiment 5 – AI Document Analyzer
+
+from ollama_helper import ask_ollama
+
+print("AI DOCUMENT ANALYZER")
+
+filename = input("Enter text file name (example: ai.txt): ")
+
+try:
+    with open(filename, "r", encoding="utf-8") as file:
+        document = file.read()
+
+    print("\nDOCUMENT CONTENT:\n")
+    print(document)
+
+    summary_prompt = f"""
+    Summarize the following document in simple language.
+    Use only the information in the document.
+
+    Document:
+    {document}
+    """
+
+    summary = ask_ollama(summary_prompt)
+
+    print("\nDOCUMENT SUMMARY:\n")
+    print(summary)
+
+    question = input("\nEnter your question about the document: ")
+
+    question_prompt = f"""
+    Answer the question using only the document below.
+    If the answer is not present, say:
+    Information not available in the document.
+
+    Document:
+    {document}
+
+    Question: {question}
+    """
+
+    answer = ask_ollama(question_prompt)
+
+    print("\nANSWER:\n")
+    print(answer)
+
+    with open("analysis_result.txt", "w", encoding="utf-8") as output:
+        output.write("SUMMARY:\n" + summary)
+        output.write("\n\nQUESTION:\n" + question)
+        output.write("\n\nANSWER:\n" + answer)
+
+    print("\nResults saved as analysis_result.txt")
+
+except FileNotFoundError:
+    print("File not found. Check the filename and try again.")
+
+
+Experiment 6 – AI-Powered Medical Assistant
+
+from ollama_helper import ask_ollama
+
+print("AI-POWERED MEDICAL INFORMATION ASSISTANT")
+
+with open("health_info.txt", "r", encoding="utf-8") as file:
+    health_information = file.read()
+
+print("\nAsk a general health information question.")
+print("Type exit to stop.")
+
+while True:
+    question = input("\nEnter your question: ")
+
+    if question.lower() == "exit":
+        break
+
+    prompt = f"""
+    You are a general health information assistant.
+    Use the information below to answer the question.
+    Do not diagnose diseases or prescribe medicines.
+    If the information is not available, say so.
+
+    Health information:
+    {health_information}
+
+    Question: {question}
+    """
+
+    answer = ask_ollama(prompt)
+
+    print("\nAssistant:", answer)
+
+    print("\nDisclaimer: This is general educational information "
+          "and is not a substitute for professional medical advice.")
+
+
+
